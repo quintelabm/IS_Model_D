@@ -121,15 +121,15 @@ void IS_Model::initialize(){
   /**
    * number of days simulated
    */
-  days      = 30;
+  days      = 7;
   /**
    * number of files saved
    */
-  points    = 720;
+  points    = 168;
   /**
    * output directory
    */
-  dir       = (char *) "output/30D/";
+  dir       = (char *) "output/";
   /**
    * 0 - contact with lymph vessels only on one border, 
    * 1 - homogeneous contact with lymph vessels.
@@ -238,22 +238,22 @@ void IS_Model::initialize(){
       for(int z = 0; z < Zspace; z++) {
         if (simCase == 3){
           A[0][x][y][z] = a0;
-	}else{
+	      }else{
           //bacteria only in the center of the cubic domain
           if ((x > (0.2*Xspace)&&( x < (0.7*Xspace)))
             && (y > (0.2*Yspace)&&( y < (0.7*Yspace)))
             && (z > (0.2*Zspace)&&( z < (0.7*Zspace)))) {
-		  A[0][x][y][z] = a0;///IC_SPACE;
-	  } else {
-		  A[0][x][y][z] = 0.0;
+		        A[0][x][y][z] = a0;///IC_SPACE;
+	        } else {
+		        A[0][x][y][z] = 0.0;
           }  
-	}
-	MR[0][x][y][z] = m_estrela;
+        }
+        MR[0][x][y][z] = m_estrela;
         MA[0][x][y][z] = 0.0;
-	CH[0][x][y][z] = 0.0;
-	CA[0][x][y][z] = 0.0;
+        CH[0][x][y][z] = 0.0;
+        CA[0][x][y][z] = 0.0;
         F[0][x][y][z]  = f0;//SPACE;
-	D[0][x][y][z]  = 0.0;
+	      D[0][x][y][z]  = 0.0;
       }
     }
   }
@@ -408,9 +408,9 @@ int IS_Model::calcIntegral_lv(double vec[][Xspace][Yspace][Zspace], double *V){
   for(int x = 0; x < Xspace; x++) {
     for(int y = 0; y < Yspace; y++) {
       for(int z = 0; z < Zspace; z++) {
-	if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z)))){
-	  if (vec[0][x][y][z]>0.0) *V += vec[0][x][y][z];
-	}
+	      if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z)))){
+	      if (vec[0][x][y][z]>0.0) *V += vec[0][x][y][z];
+	      }
       }
     }
   }
@@ -426,9 +426,9 @@ int IS_Model::calcIntegral_bv(double vec[][Xspace][Yspace][Zspace], double *V){
   for(int x = 0; x < Xspace; x++) {
     for(int y = 0; y < Yspace; y++) {
       for(int z = 0; z < Zspace; z++) {
-	if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z)))){
-	  if (vec[0][x][y][z]>0.0) *V += vec[0][x][y][z];
-	}
+	      if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z)))){
+	        if (vec[0][x][y][z]>0.0) *V += vec[0][x][y][z];
+	      }
       }
     }
   }
@@ -479,90 +479,90 @@ int IS_Model::solve(){
   //alloc memory for filename
   char *fileName = (char *)malloc(20*sizeof(char));
   
-    sprintf(fileName, "%s%s", dir, "L.dat");
-    datamatlabL = fopen(fileName, "w");
+  sprintf(fileName, "%s%s", dir, "L.dat");
+  datamatlabL = fopen(fileName, "w");
     
-    //check valid dir
-    if (checkFile(datamatlabL)) return 1;
+  //check valid dir
+  if (checkFile(datamatlabL)) return 1;
 
-    sprintf(fileName, "%s%s", dir, "T.dat");
-    datamatlabT = fopen(fileName, "w");
+  sprintf(fileName, "%s%s", dir, "T.dat");
+  datamatlabT = fopen(fileName, "w");
 
-    sprintf(fileName, "%s%s", dir, "B.dat");
-    datamatlabB = fopen(fileName, "w");
+  sprintf(fileName, "%s%s", dir, "B.dat");
+  datamatlabB = fopen(fileName, "w");
 
-    sprintf(fileName, "%s%s", dir, "P.dat");
-    datamatlabP = fopen(fileName, "w");
+  sprintf(fileName, "%s%s", dir, "P.dat");
+  datamatlabP = fopen(fileName, "w");
 
 /**
  * begin time loop
  */
-  do{
+do{
 
-    if (t == 0) cout << "Calculating...\n";
+  if (t == 0) cout << "Calculating...\n";
 
-    int value = ((int)iterPerDay*days)/points;
+  int value = ((int)iterPerDay*days)/points;
 
-    if(t%value == 0) {
+  if(t%value == 0) {
 
-      cout << "Saving files : iteration ..."<< t << "\n";
+    cout << "Saving files : iteration ..."<< t << "\n";
 
-      if (saveFiles){//check before saving all files
-        sprintf(fileName,"%sA_%ld.csv", dir,t);
-        datamatlabA = fopen(fileName, "w");
-	sprintf(fileName,"%sCH_%ld.csv", dir,t);
-        datamatlabCH = fopen(fileName, "w");
-	sprintf(fileName,"%sCA_%ld.csv", dir,t);
-        datamatlabCA = fopen(fileName, "w");
-   	sprintf(fileName,"%sMr_%ld.csv",dir,t);
-   	datamatlabMr = fopen(fileName, "w");
-   	sprintf(fileName,"%sMa_%ld.csv",dir,t);
-   	datamatlabMa = fopen(fileName, "w");
-   	sprintf(fileName,"%sF_%ld.csv",dir,t);
-   	datamatlabF = fopen(fileName, "w");
-	sprintf(fileName,"%sD_%ld.csv",dir,t);
-   	datamatlabD = fopen(fileName, "w");
-   	fprintf(datamatlabT, "%ld %.2E \n", t, Th);
-   	fprintf(datamatlabB, "%ld %.2E \n", t, B);
-   	fprintf(datamatlabP, "%ld %.2E \n", t, P);
+    if (saveFiles){//check before saving all files
+      sprintf(fileName,"%sA_%ld.csv", dir,t);
+      datamatlabA = fopen(fileName, "w");
+	    sprintf(fileName,"%sCH_%ld.csv", dir,t);
+      datamatlabCH = fopen(fileName, "w");
+	    sprintf(fileName,"%sCA_%ld.csv", dir,t);
+      datamatlabCA = fopen(fileName, "w");
+      sprintf(fileName,"%sMr_%ld.csv",dir,t);
+      datamatlabMr = fopen(fileName, "w");
+      sprintf(fileName,"%sMa_%ld.csv",dir,t);
+      datamatlabMa = fopen(fileName, "w");
+      sprintf(fileName,"%sF_%ld.csv",dir,t);
+      datamatlabF = fopen(fileName, "w");
+	    sprintf(fileName,"%sD_%ld.csv",dir,t);
+   	  datamatlabD = fopen(fileName, "w");
+      fprintf(datamatlabT, "%ld %.2E \n", t, Th);
+      fprintf(datamatlabB, "%ld %.2E \n", t, B);
+      fprintf(datamatlabP, "%ld %.2E \n", t, P);
 
-        fprintf(datamatlabL, "%ld %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E\n", 
+      fprintf(datamatlabL, "%ld %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E\n", 
 		        t, MA_T, F_T, MA_L, F_L, A_T, MR_T, CH_T, CA_T, D_T);
-   	for(int x = 0; x < Xspace; x++) {
-  	  for(int y = 0; y < Yspace; y++) {
-            for(int z = 0; z < Zspace; z++) {
-              if( (x+1 == Xspace && y+1 == Yspace && z+1==Zspace) ) {
-                fprintf(datamatlabA, "%d %d %d %E", x, y, z, A[0][x][y][z]);
-		fprintf(datamatlabCH, "%d %d %d %E", x, y, z, CH[0][x][y][z]);
-		fprintf(datamatlabCA, "%d %d %d %E", x, y, z, CA[0][x][y][z]);
-     		fprintf(datamatlabMr, "%d %d %d %E", x, y, z, MR[0][x][y][z]);
-		fprintf(datamatlabMa, "%d %d %d %E", x, y, z, MA[0][x][y][z]);
-       		fprintf(datamatlabF, "%d %d %d %E", x, y, z, F[0][x][y][z]);
-		fprintf(datamatlabD, "%d %d %d %E", x, y, z, D[0][x][y][z]);
-              } else {
-		fprintf(datamatlabA, "%d %d %d %E\n", x, y, z, A[0][x][y][z]);
-		fprintf(datamatlabCH, "%d %d %d %E\n", x, y, z, CH[0][x][y][z]);
-		fprintf(datamatlabCA, "%d %d %d %E\n", x, y, z, CA[0][x][y][z]);
-        	fprintf(datamatlabMr, "%d %d %d %E\n", x, y, z, MR[0][x][y][z]);
-                fprintf(datamatlabMa, "%d %d %d %E\n", x, y, z, MA[0][x][y][z]);
-        	fprintf(datamatlabF, "%d %d %d %E\n", x, y, z, F[0][x][y][z]);
-		fprintf(datamatlabD, "%d %d %d %E\n", x, y, z, D[0][x][y][z]);
-	      }
-	     }
-    	    }
+      for(int x = 0; x < Xspace; x++) {
+        for(int y = 0; y < Yspace; y++) {
+          for(int z = 0; z < Zspace; z++) {
+            if( (x+1 == Xspace && y+1 == Yspace && z+1==Zspace) ) {
+              fprintf(datamatlabA, "%d, %d, %d, %E", x, y, z, A[0][x][y][z]);
+              fprintf(datamatlabCH, "%d, %d, %d, %E", x, y, z, CH[0][x][y][z]);
+              fprintf(datamatlabCA, "%d, %d, %d, %E", x, y, z, CA[0][x][y][z]);
+              fprintf(datamatlabMr, "%d, %d, %d, %E", x, y, z, MR[0][x][y][z]);
+              fprintf(datamatlabMa, "%d, %d, %d, %E", x, y, z, MA[0][x][y][z]);
+              fprintf(datamatlabF, "%d, %d, %d, %E", x, y, z, F[0][x][y][z]);
+              fprintf(datamatlabD, "%d, %d, %d, %E", x, y, z, D[0][x][y][z]);
+            } else {
+              fprintf(datamatlabA, "%d, %d, %d, %E\n", x, y, z, A[0][x][y][z]);
+              fprintf(datamatlabCH, "%d, %d, %d, %E\n", x, y, z, CH[0][x][y][z]);
+              fprintf(datamatlabCA, "%d, %d, %d, %E\n", x, y, z, CA[0][x][y][z]);
+        	    fprintf(datamatlabMr, "%d, %d, %d, %E\n", x, y, z, MR[0][x][y][z]);
+              fprintf(datamatlabMa, "%d, %d, %d, %E\n", x, y, z, MA[0][x][y][z]);
+        	    fprintf(datamatlabF, "%d, %d, %d, %E\n", x, y, z, F[0][x][y][z]);
+		          fprintf(datamatlabD, "%d, %d, %d, %E\n", x, y, z, D[0][x][y][z]);
+	          }
+	        }
     	  }
-        fclose(datamatlabA);
-	fclose(datamatlabCH);
-	fclose(datamatlabCA);
-        fclose(datamatlabMr);
-        fclose(datamatlabMa);
-        fclose(datamatlabF);
-	fclose(datamatlabD);
+    	}
+      fclose(datamatlabA);
+	    fclose(datamatlabCH);
+	    fclose(datamatlabCA);
+      fclose(datamatlabMr);
+      fclose(datamatlabMa);
+      fclose(datamatlabF);
+	    fclose(datamatlabD);
       }else{
-        fprintf(datamatlabT, "%ld %.2E \n", t, Th);
-   	fprintf(datamatlabB, "%ld %.2E \n", t, B);
-   	fprintf(datamatlabP, "%ld %.2E \n", t, P);
-	fprintf(datamatlabL, "%ld %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E %.2E\n", 
+        fprintf(datamatlabT, "%ld, %.2E \n", t, Th);
+        fprintf(datamatlabB, "%ld, %.2E \n", t, B);
+        fprintf(datamatlabP, "%ld, %.2E \n", t, P);
+	      fprintf(datamatlabL, "%ld, %.2E, %.2E, %.2E, %.2E, %.2E, %.2E, %.2E, %.2E, %.2E\n", 
 		     t, MA_T, F_T, MA_L, F_L, A_T, MR_T, CH_T, CA_T, D_T);
       }
     }
@@ -583,7 +583,7 @@ int IS_Model::solve(){
       calcIntegral(D, &D_T);
     }
 
-//*****************************************************************************
+    //*****************************************************************************
     //Complete model without diffusion
     if (simCase == 3){
         A[0][0][0][0] = ( beta_A*A[0][0][0][0]*(1-(A[0][0][0][0]/k_A))
@@ -598,15 +598,13 @@ int IS_Model::solve(){
 		       + alpha_mr * (m_estrela - MR[0][0][0][0])
                          ) * deltaT + MR[0][0][0][0];
 
-	MA[0][0][0][0] = ((-m_Ma * MA[0][0][0][0])
+	      MA[0][0][0][0] = ((-m_Ma * MA[0][0][0][0])
 		       + (gamma_ma * MR[0][0][0][0] * A[0][0][0][0])
-		       - alpha_Ma * (MA_T - MA_L)
-			 ) * deltaT + MA[0][0][0][0];
+		       - alpha_Ma * (MA_T - MA_L)) * deltaT + MA[0][0][0][0];
 
         F[0][0][0][0] = (- (lambda_afma * F[0][0][0][0]* A[0][0][0][0]*MA[0][0][0][0])
                       - (lambda_afmr*F[0][0][0][0]*A[0][0][0][0]*MR[0][0][0][0])
-		      - (alpha_f * (F_T - F_L))
-			)* deltaT + F[0][0][0][0];
+		      - (alpha_f * (F_T - F_L)))* deltaT + F[0][0][0][0];
 
         MA_L = ( alpha_Ma * (MA_T - MA_L)) * deltaT + MA_L;
         if (MA_L < 0.0) MA_L = 0.0;
@@ -627,7 +625,7 @@ int IS_Model::solve(){
 
     }
     
-//*****************************************************************************
+    //*****************************************************************************
 
     else{
       //Solve ODEs    
@@ -653,215 +651,214 @@ int IS_Model::solve(){
     //Solve PDEs
     for(int x = 0; x < Xspace; x++) {
       for(int y = 0; y < Yspace; y++) {
-	for(int z = 0; z < Zspace; z++) {
+	      for(int z = 0; z < Zspace; z++) {
 	  
-//*****************************************************************************
+          //*****************************************************************************
           //Simulates only antigen diffusion
-	  if(simCase==1){
-		
-	    //Antigenos
-	    A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A)) 
-	                  + (d_a * laplacian(A,x,y,z))
-		          - m_A * A[0][x][y][z]) * deltaT + A[0][x][y][z];
+          if(simCase==1){
+          
+            //Antigenos
+            A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A)) 
+                          + (d_a * laplacian(A,x,y,z))
+                          - m_A * A[0][x][y][z]) * deltaT + A[0][x][y][z];
 
-	    if(A[1][x][y][z] != A[1][x][y][z]) {
-	      cout << "A\t(NaN)-> i:"<<i<<"\t-> ("<< x << y << z << ")" << A[1][x][y][z] << "\n";
-	    //  return 1;
-	    }
-//*****************************************************************************
-	  //Simulates only innate response
-	  }else if (simCase==2){
+            if(A[1][x][y][z] != A[1][x][y][z]) {
+              cout << "A\t(NaN)-> i:"<<i<<"\t-> ("<< x << y << z << ")" << A[1][x][y][z] << "\n";
+              //  return 1;
+            }
+            //*****************************************************************************
+            //Simulates only innate response
+          }else if (simCase==2){
 
             //Antigenos
-	    A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A))
-	                  - ( lambda_mr*MR[0][x][y][z]*A[0][x][y][z])
-			  - (lambda_ma*MA[0][x][y][z]*A[0][x][y][z])
-			  - m_A * A[0][x][y][z]
-			  + (d_a * laplacian(A,x,y,z))
-			    ) * deltaT + A[0][x][y][z];
+            A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A))
+                          - ( lambda_mr*MR[0][x][y][z]*A[0][x][y][z])
+              - (lambda_ma*MA[0][x][y][z]*A[0][x][y][z])
+              - m_A * A[0][x][y][z]
+              + (d_a * laplacian(A,x,y,z))
+                ) * deltaT + A[0][x][y][z];
 
-	    if(A[1][x][y][z] != A[1][x][y][z]) {
-	      cout << "A\t(NaN)-> i:"<<i<<"\t-> ("<< x << y << z << ")" << A[1][x][y][z]<< "\n";
-	      return 1;
-	    }
+            if(A[1][x][y][z] != A[1][x][y][z]) {
+              cout << "A\t(NaN)-> i:"<<i<<"\t-> ("<< x << y << z << ")" << A[1][x][y][z]<< "\n";
+              return 1;
+            }
 
             //Macrophages     
+                  
+            /*****************************************************************
+            * Assuming: contact with blood vessels only on one border bv = 0
+            *           homogeneous contact with blood vessels bv = 1   
+            *           contact with blood vessels given by function bv = 2
+            ******************************************************************/
+            source_mr = 0;            
+            if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))    
+              source_mr = alpha_mr * (m_estrela - MR[0][x][y][z]);
+            /*****************************************************************/             
             
-	    /*****************************************************************
-	    * Assuming: contact with blood vessels only on one border bv = 0
-	    *           homogeneous contact with blood vessels bv = 1   
-	    *           contact with blood vessels given by function bv = 2
-	    ******************************************************************/
-	    source_mr = 0;            
-	    if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))    
-	      source_mr = alpha_mr * (m_estrela - MR[0][x][y][z]);
-	    /*****************************************************************/             
-	    
-	    MR[1][x][y][z] = ((- m_Mr * MR[0][x][y][z])
-	                   - (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])
-			   + (d_mr * laplacian(MR,x,y,z))
-			   - (x_Mr * chemotaxis(MR,x,y,z,t))
-			   + source_mr*(1-(MR[0][x][y][z]/k_A)) ) * deltaT + MR[0][x][y][z];
-	   
-	    if(MR[1][x][y][z] != MR[1][x][y][z] ) {
-	      cout << "MR\t(NaN)-> i: " << i << "-> "<< MR[1][x][y][z] <<"(" << x << y << z << ")" << "\n";
-	      return 1;
-	    }
-
-	    MA[1][x][y][z] = ((-m_Ma * MA[0][x][y][z])
-	                   + (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])*(1-(MA[0][x][y][z]/k_A))
-			   + (d_ma * laplacian(MA,x,y,z))
-			   - (x_Ma * chemotaxis(MA,x,y,z,t))
-			      ) * deltaT + MA[0][x][y][z];
-	   
-	    if(MA[1][x][y][z] != MA[1][x][y][z] ) {
-	      cout << "MA\t(NaN)-> i: " << i << "-> "<< MA[1][x][y][z] <<"(" << x << y << z << ")"<< "\n" ;
-	      return 1;
-	    }
-	    
-	     //Pro-inflammatory cytokine
-	    CH[1][x][y][z] = (-m_ch * CH[0][x][y][z] 
-	           + (b_ch_ma * MA[0][x][y][z] * A[0][x][y][z])*(1 - CH[0][x][y][z]/chinf)/(1 + ca0 * CA[0][x][y][z]) 
-	           + (d_ch * laplacian(CH,x,y,z))) * deltaT + CH[0][x][y][z];
-	    
-	    if(CH[1][x][y][z] != CH[1][x][y][z]) {
-		printf("CH\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
-	    } 
-
-	    //citocina anti-inflamatoria
-	    CA[1][x][y][z] = ((-1 * m_ca * CA[0][x][y][z])                    
-			   + (b_ca_ma * MA[0][x][y][z]) * (1 - CA[0][x][y][z]/cainf) 
-			   + (d_ca*laplacian(CA,x,y,z))) * deltaT + CA[0][x][y][z];
-            if(CA[1][x][y][z] != CA[1][x][y][z]) {
-		printf("CA\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
-            }
-            
-	    //celulas danificadas
-	    D[1][x][y][z] = (theta_d*A[0][x][y][z]
-	                  - alpha_d * D[0][x][y][z]
-			    ) * deltaT + D[0][x][y][z];
-            if(D[1][x][y][z] != D[1][x][y][z]) {
-		printf("D\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
-            }            
-            
-//*****************************************************************************
-
-	  //Simulates complete model
-          }else if(simCase==0){
-	  //Antigenos
-            A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A))
-	                  - ( lambda_mr*MR[0][x][y][z]*A[0][x][y][z])
-		          - ( lambda_ma * MA[0][x][y][z] * A[0][x][y][z])
-		          - ( lambda_afma*F[0][x][y][z]*A[0][x][y][z]*MA[0][x][y][z])
-                          - ( lambda_afmr*F[0][x][y][z]*A[0][x][y][z]*MR[0][x][y][z])
-		          - m_A * A[0][x][y][z]
-		          + (d_a * laplacian(A,x,y,z))
-		            ) * deltaT + A[0][x][y][z];
-           
-	    if(A[1][x][y][z] < tol) {A[1][x][y][z] = 0.0;}
-            if(A[1][x][y][z] != A[1][x][y][z]) {
-              cout << "A\t(NaN)-> i:"<<i<<" -> ("<< x << y << z << ") ->" << A[1][x][y][z] << "\n";
-	      return 1;
+            MR[1][x][y][z] = ((- m_Mr * MR[0][x][y][z])
+                          - (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])
+              + (d_mr * laplacian(MR,x,y,z))
+              - (x_Mr * chemotaxis(MR,x,y,z,t))
+              + source_mr*(1-(MR[0][x][y][z]/k_A)) ) * deltaT + MR[0][x][y][z];
+          
+            if(MR[1][x][y][z] != MR[1][x][y][z] ) {
+              cout << "MR\t(NaN)-> i: " << i << "-> "<< MR[1][x][y][z] <<"(" << x << y << z << ")" << "\n";
+              return 1;
             }
 
-          //Macrophages
-            
-	    /*****************************************************************
-	    * Assuming: contact with blood vessels only on one border bv = 0
-	    *           homogeneous contact with blood vessels bv = 1   
-	    *           contact with blood vessels given by function bv = 2
-	    ******************************************************************/
-	    source_mr = 0;            
-	    if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))    
-	      source_mr = alpha_mr * (m_estrela - MR[0][x][y][z]);
-	    /*****************************************************************/  
-	    
-	    MR[1][x][y][z] = ((- m_Mr * MR[0][x][y][z])
-	               - (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])       
-	               + (d_mr * laplacian(MR,x,y,z))
-		       - (x_Mr * chemotaxis(MR,x,y,z,t))
-		       + source_mr*(1-(MR[0][x][y][z]/k_A)) ) * deltaT + MR[0][x][y][z];
-
-	    if(MR[1][x][y][z] != MR[1][x][y][z] ) {
-	      cout << "MR\t(NaN)-> i: " << i << "-> "<< MR[1][x][y][z] <<"(" << x << y << z << ")" << "\n";
-	    return 1;
-	    }
-
-	    
-	    /*****************************************************************
-	    * Assuming: contact with lymph vessels only on one border bv = 0
-	    *           homogeneous contact with lymph vessels bv = 1   
-	    *           contact with lymph vessels given by function bv = 2
-	    ******************************************************************/
-	    migration_ma = 0;            
-	    if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z))))    
-	      migration_ma = alpha_Ma * (MA_T - MA_L);
-	    /*****************************************************************/ 
-	    
-	    MA[1][x][y][z] = ((-m_Ma * MA[0][x][y][z])
-	                  + (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])*(1-(MA[0][x][y][z]/k_A))
-	                  + (d_ma * laplacian(MA,x,y,z))
-			  - (x_Ma * chemotaxis(MA,x,y,z,t))
-	                  - migration_ma ) * deltaT + MA[0][x][y][z];
+            MA[1][x][y][z] = ((-m_Ma * MA[0][x][y][z])
+                          + (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])*(1-(MA[0][x][y][z]/k_A))
+                          + (d_ma * laplacian(MA,x,y,z))
+                          - (x_Ma * chemotaxis(MA,x,y,z,t))) * deltaT + MA[0][x][y][z];
           
             if(MA[1][x][y][z] != MA[1][x][y][z] ) {
-	      cout << "MA\t(NaN)-> i: " << i << "-> "<< MA[1][x][y][z] <<" -> (" << x << y << z << ")" << "\n";
-	     return 1;
+              cout << "MA\t(NaN)-> i: " << i << "-> "<< MA[1][x][y][z] <<"(" << x << y << z << ")"<< "\n" ;
+              return 1;
             }
             
-	     //Pro-inflammatory cytokine
-	    CH[1][x][y][z] = (-m_ch * CH[0][x][y][z] 
-	           + (b_ch_ma*MA[0][x][y][z]*A[0][x][y][z])*(1-CH[0][x][y][z]/chinf)/(1+ca0*CA[0][x][y][z]) 
-	           + (d_ch * laplacian(CH,x,y,z))) * deltaT + CH[0][x][y][z];
-	    
-	    if(CH[1][x][y][z] != CH[1][x][y][z]) {
-		printf("CH\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
-	    }             
-	    //citocina anti-inflamatoria
-	    CA[1][x][y][z] = ((-1 * m_ca * CA[0][x][y][z])                    
-			   + (b_ca_ma * MR[0][x][y][z]*D[0][x][y][z]) * (1 - CA[0][x][y][z]/cainf) 
-			   + (d_ca*laplacian(CA,x,y,z))) * deltaT + CA[0][x][y][z];
-            if(CA[1][x][y][z] != CA[1][x][y][z]) {
-		printf("CA\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
-            }                       
+            //Pro-inflammatory cytokine
+            CH[1][x][y][z] = (-m_ch * CH[0][x][y][z] 
+                  + (b_ch_ma * MA[0][x][y][z] * A[0][x][y][z])*(1 - CH[0][x][y][z]/chinf)/(1 + ca0 * CA[0][x][y][z]) 
+                  + (d_ch * laplacian(CH,x,y,z))) * deltaT + CH[0][x][y][z];
             
-	   //Antibody    
-	    /*****************************************************************
-	    * Assuming: contact with lymph vessels only on one border bv = 0
-	    *           homogeneous contact with lymph vessels bv = 1   
-	    *           contact with lymph vessels given by function bv = 2
-	    ******************************************************************/
-	    migration_f = 0;            
-	    //if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z)))) 
-	    if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))
-	      migration_f = (alpha_f * (F_T - F_L));
-	    /*****************************************************************/ 
-	    
-	    F[1][x][y][z] = (
-	                 - ( lambda_afma * F[0][x][y][z] * A[0][x][y][z]*MA[0][x][y][z])
-	                 - ( lambda_afmr*F[0][x][y][z]*A[0][x][y][z]*MR[0][x][y][z])
-			 - migration_f*(1-(F[0][x][y][z]/k_F)) + (d_f * laplacian(F,x,y,z)) 
-			   )* deltaT + F[0][x][y][z];
+            if(CH[1][x][y][z] != CH[1][x][y][z]) {
+              printf("CH\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+              return 1;
+            } 
 
-	    if(F[1][x][y][z] != F[1][x][y][z] ) {
-	      cout << "F\t(NaN)-> i: " << i << "-> "<< F[1][x][y][z] <<"(" << x << y << z << ")"<< "\n" ;
-	      return 1;
-            }
-            
-	    //celulas destruídas
-	    D[1][x][y][z] = (theta_d*A[0][x][y][z] - alpha_d * D[0][x][y][z]
-			    ) * deltaT + D[0][x][y][z];
+            //citocina anti-inflamatoria
+            CA[1][x][y][z] = ((-1 * m_ca * CA[0][x][y][z])                    
+              + (b_ca_ma * MA[0][x][y][z]) * (1 - CA[0][x][y][z]/cainf) 
+              + (d_ca*laplacian(CA,x,y,z))) * deltaT + CA[0][x][y][z];
+                  if(CA[1][x][y][z] != CA[1][x][y][z]) {
+                    printf("CA\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+                    return 1;
+                  }
+                  
+            //celulas danificadas
+            D[1][x][y][z] = (theta_d*A[0][x][y][z]
+                          - alpha_d * D[0][x][y][z]
+                          ) * deltaT + D[0][x][y][z];
             if(D[1][x][y][z] != D[1][x][y][z]) {
-		printf("D\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
-		return 1;
+              printf("D\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+              return 1;
+            }            
+                  
+          //*****************************************************************************
+
+          //Simulates complete model
+          }else if(simCase==0){
+            //Antigenos
+            A[1][x][y][z] = ( beta_A*A[0][x][y][z]*(1-(A[0][x][y][z]/k_A))
+                          - ( lambda_mr*MR[0][x][y][z]*A[0][x][y][z])
+                          - ( lambda_ma * MA[0][x][y][z] * A[0][x][y][z])
+                          - ( lambda_afma*F[0][x][y][z]*A[0][x][y][z]*MA[0][x][y][z])
+                          - ( lambda_afmr*F[0][x][y][z]*A[0][x][y][z]*MR[0][x][y][z])
+                          - m_A * A[0][x][y][z]
+                          + (d_a * laplacian(A,x,y,z))
+                          ) * deltaT + A[0][x][y][z];
+                
+            if(A[1][x][y][z] < tol) {A[1][x][y][z] = 0.0;}
+            if(A[1][x][y][z] != A[1][x][y][z]) {
+              cout << "A\t(NaN)-> i:"<<i<<" -> ("<< x << y << z << ") ->" << A[1][x][y][z] << "\n";
+              return 1;
+            }
+
+            //Macrophages
+                  
+            /*****************************************************************
+            * Assuming: contact with blood vessels only on one border bv = 0
+            *           homogeneous contact with blood vessels bv = 1   
+            *           contact with blood vessels given by function bv = 2
+            ******************************************************************/
+            source_mr = 0;            
+            if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))    
+              source_mr = alpha_mr * (m_estrela - MR[0][x][y][z]);
+            /*****************************************************************/  
+            
+            MR[1][x][y][z] = ((- m_Mr * MR[0][x][y][z])
+                      - (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])       
+                      + (d_mr * laplacian(MR,x,y,z))
+                - (x_Mr * chemotaxis(MR,x,y,z,t))
+                + source_mr*(1-(MR[0][x][y][z]/k_A)) ) * deltaT + MR[0][x][y][z];
+
+            if(MR[1][x][y][z] != MR[1][x][y][z] ) {
+              cout << "MR\t(NaN)-> i: " << i << "-> "<< MR[1][x][y][z] <<"(" << x << y << z << ")" << "\n";
+            return 1;
+            }
+
+            
+            /*****************************************************************
+            * Assuming: contact with lymph vessels only on one border bv = 0
+            *           homogeneous contact with lymph vessels bv = 1   
+            *           contact with lymph vessels given by function bv = 2
+            ******************************************************************/
+            migration_ma = 0;            
+            if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z))))    
+              migration_ma = alpha_Ma * (MA_T - MA_L);
+            /*****************************************************************/ 
+            
+            MA[1][x][y][z] = ((-m_Ma * MA[0][x][y][z])
+                          + (gamma_ma * MR[0][x][y][z] * A[0][x][y][z])*(1-(MA[0][x][y][z]/k_A))
+                          + (d_ma * laplacian(MA,x,y,z))
+                          - (x_Ma * chemotaxis(MA,x,y,z,t))
+                          - migration_ma ) * deltaT + MA[0][x][y][z];
+                
+            if(MA[1][x][y][z] != MA[1][x][y][z] ) {
+              cout << "MA\t(NaN)-> i: " << i << "-> "<< MA[1][x][y][z] <<" -> (" << x << y << z << ")" << "\n";
+              return 1;
+            }
+                  
+            //Pro-inflammatory cytokine
+            CH[1][x][y][z] = (-m_ch * CH[0][x][y][z] 
+                  + (b_ch_ma*MA[0][x][y][z]*A[0][x][y][z])*(1-CH[0][x][y][z]/chinf)/(1+ca0*CA[0][x][y][z]) 
+                  + (d_ch * laplacian(CH,x,y,z))) * deltaT + CH[0][x][y][z];
+            
+            if(CH[1][x][y][z] != CH[1][x][y][z]) {
+              printf("CH\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+              return 1;
+            }             
+            //citocina anti-inflamatoria
+            CA[1][x][y][z] = ((-1 * m_ca * CA[0][x][y][z])                    
+              + (b_ca_ma * MR[0][x][y][z]*D[0][x][y][z]) * (1 - CA[0][x][y][z]/cainf) 
+              + (d_ca*laplacian(CA,x,y,z))) * deltaT + CA[0][x][y][z];
+            if(CA[1][x][y][z] != CA[1][x][y][z]) {
+              printf("CA\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+              return 1;
+            }                       
+                  
+          //Antibody    
+            /*****************************************************************
+            * Assuming: contact with lymph vessels only on one border bv = 0
+            *           homogeneous contact with lymph vessels bv = 1   
+            *           contact with lymph vessels given by function bv = 2
+            ******************************************************************/
+            migration_f = 0;            
+            //if (((lnv==0)&&(x==0))||(lnv==1)||((lnv==2)&&(is_lnvase(x,y,z)))) 
+            if (((bv==0)&&(x==0))||(bv==1)||((bv==2)&&(is_bvase(x,y,z))))
+              migration_f = (alpha_f * (F_T - F_L));
+            /*****************************************************************/ 
+            
+            F[1][x][y][z] = (
+                          - ( lambda_afma * F[0][x][y][z] * A[0][x][y][z]*MA[0][x][y][z])
+                          - ( lambda_afmr*F[0][x][y][z]*A[0][x][y][z]*MR[0][x][y][z])
+                          - migration_f*(1-(F[0][x][y][z]/k_F)) + (d_f * laplacian(F,x,y,z)) 
+                            )* deltaT + F[0][x][y][z];
+
+            if(F[1][x][y][z] != F[1][x][y][z] ) {
+              cout << "F\t(NaN)-> i: " << i << "-> "<< F[1][x][y][z] <<"(" << x << y << z << ")"<< "\n" ;
+              return 1;
+            }
+                  
+            //celulas destruídas
+            D[1][x][y][z] = (theta_d*A[0][x][y][z] - alpha_d * D[0][x][y][z]
+                ) * deltaT + D[0][x][y][z];
+            if(D[1][x][y][z] != D[1][x][y][z]) {
+              printf("D\t(NaN)-> i:%d\t-> (%d\t%d\t%d)\n", i, x, y, z);
+              return 1;
             }            
             
-	  }
+	        }
         }
       }
     }
@@ -878,7 +875,7 @@ int IS_Model::solve(){
       update(F);
     }
   }
-  t++;
+  t++; //time loop
 
   }while((t < (iterPerDay*days)) && (A_T > tol));
 
